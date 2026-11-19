@@ -1,44 +1,32 @@
-
 name: Build APK
-
 on:
   workflow_dispatch:
   push:
     branches: [main]
-
 permissions:
   contents: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Descompactar
         run: unzip -q -o KJTube.zip -d proj
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
-
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.9
-
       - name: Compilar
         run: |
           DIR=$(dirname "$(find proj -name 'settings.gradle*' | head -1)")
           echo "Projeto em: $DIR"
           cd "$DIR"
-
           gradle assembleVideosDebug assembleMusicDebug --no-daemon
-
           cp app/build/outputs/apk/videos/debug/app-videos-debug.apk "$GITHUB_WORKSPACE/kj-videos.apk"
           cp app/build/outputs/apk/music/debug/app-music-debug.apk "$GITHUB_WORKSPACE/kj-music.apk"
-
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
@@ -47,3 +35,4 @@ jobs:
             kj-videos.apk
             kj-music.apk
           make_latest: true
+          
